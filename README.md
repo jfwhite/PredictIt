@@ -16,8 +16,8 @@ read.py implements our course selection algorithm
 
 Usage:
 
-$python create.py
+$ python create.py
 
-$python write.py
+$ python write.py
 
-$python read.py
+$ python read.py
