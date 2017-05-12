@@ -11,10 +11,14 @@ write.py fills the coursedata table with data from courses.json
 
 read.py implements our course selection algorithm
 
-usage:
 
-python create.py
 
-python write.py
 
-python read.py
+
+Usage:
+
+$python create.py
+
+$python write.py
+
+$python read.py
