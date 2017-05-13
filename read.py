@@ -11,32 +11,60 @@ c.execute("DELETE FROM coursedata WHERE dim1 = -1")
 c.execute("DELETE FROM coursedata WHERE dim2 = -1")
 c.execute("DELETE FROM coursedata WHERE dim3 = -1")
 
+# Transfer data from database to NumPy
+c.execute("SELECT * FROM coursedata")
+sqldata = c.fetchall()
+dtype = [('id', 'S10'), ('dim1', int), ('dim2', int), ('dim3', int)]
+data = np.array(sqldata, dtype=dtype)
+
 # Figure out which dimension to present to the user
-def which_col():
-    c.execute("SELECT dim1 FROM coursedata")
-    d1 = [float(row[0]) for row in c.fetchall()]
+def which_col(data):
+    d1 = [float(val) for val in data["dim1"]]
     r1 = (max(d1) - min(d1))/np.std(d1)
 
-    c.execute("SELECT dim2 FROM coursedata")
-    d2 = [float(row[0]) for row in c.fetchall()]
+    d2 = [float(val) for val in data["dim2"]]
     r2 = (max(d2) - min(d2))/np.std(d2) # watch out for dividing by zero
 
-    c.execute("SELECT dim3 FROM coursedata")
-    d3 = [float(row[0]) for row in c.fetchall()]
+    d3 = [float(val) for val in data["dim3"]]
     r3 = (max(d3) - min(d3))/np.std(d3)
 
-    results = [ (r1, d1), (r2, d2), (r3, d3) ]
+    results = [ (r1, "dim1"), (r2, "dim2"), (r3, "dim3") ]
     # return dimension with greatest standardized range
-    return sorted(results)[-1][1] 
+    return max(results)[1] 
+
+def print_options(low, med, high):
+    print "Here are three example courses:"
+    print "ID: " + low[0] 
+    print "ID: " + med[0]
+    print "ID: " + high[0]
+
+def parse(selection):
+    if selection in ["1", "2", "3"]:
+        return int(selection)
+    else:
+        return parse(raw_input("Please enter 1, 2, or 3.\n"))
+
+def top_courses(newdata):
+    return newdata[0][0]
 
 # Execute one iteration of our algorithm
-def step():
-    dim = sorted(which_col())
+def step(data):
+    col = which_col(data)
+    sor = np.sort(data, kind='mergesort', order=col)
+    print_options(sor[0], sor[len(sor)/2], sor[-1])
+    print "Based on the dimension of " + col + "..."
+    selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
+    newdata = sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
+    print "Your top courses are: " + top_courses(newdata)
+    return newdata
 
-# Take a look at current state of coursedata table
-#c.execute("SELECT * FROM coursedata")
-#for row in c.fetchall():
-#    print "\t\t".join([str(col) for col in row])
+for i in range(10):
+    print "__________________________________________"
+    newdata = step(data)
+    data = newdata
 
 # Close database connection without saving changes
 conn.close()
+
+# Try numpy, pandas, SQLite, SQLAlchemy and see which is faster
+# or just zipping
