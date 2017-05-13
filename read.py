@@ -19,16 +19,23 @@ data = np.array(sqldata, dtype=dtype)
 
 # Figure out which dimension to present to the user
 def which_col(data):
+    results = []
+
     d1 = [float(val) for val in data["dim1"]]
-    r1 = (max(d1) - min(d1))/np.std(d1)
+    if max(d1) != min(d1):
+        r1 = (max(d1) - min(d1))/np.std(d1)
+        results.append((r1, "dim1"))
 
     d2 = [float(val) for val in data["dim2"]]
-    r2 = (max(d2) - min(d2))/np.std(d2) # watch out for dividing by zero
+    if max(d2) != min(d2):
+        r2 = (max(d2) - min(d2))/np.std(d2) 
+        results.append((r2, "dim2"))
 
     d3 = [float(val) for val in data["dim3"]]
-    r3 = (max(d3) - min(d3))/np.std(d3)
+    if max(d3) != min(d3):
+        r3 = (max(d3) - min(d3))/np.std(d3)
+        results.append((r3, "dim3"))
 
-    results = [ (r1, "dim1"), (r2, "dim2"), (r3, "dim3") ]
     # return dimension with greatest standardized range
     return max(results)[1] 
 
@@ -54,13 +61,16 @@ def step(data):
     print_options(sor[0], sor[len(sor)/2], sor[-1])
     print "Based on the dimension of " + col + "..."
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
-    newdata = sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
-    print "Your top courses are: " + top_courses(newdata)
-    return newdata
+    return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
 for i in range(10):
     print "__________________________________________"
     newdata = step(data)
+    print "Your top courses are: " + top_courses(newdata)
+    print "There are " + str(len(newdata)) + " courses remaining"
+    if len(newdata) < 10:
+        print "Stopping execution because there are too few courses"
+        break
     data = newdata
 
 # Close database connection without saving changes
