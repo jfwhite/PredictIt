@@ -1,6 +1,7 @@
 # There is a tradeoff between using numpy and sqlite3 for different things
 import sqlite3
 import numpy as np
+from pandas import DataFrame
 
 # Connect to database
 conn = sqlite3.connect("courses.db")
@@ -12,10 +13,21 @@ c.execute("DELETE FROM coursedata WHERE dim2 = -1")
 c.execute("DELETE FROM coursedata WHERE dim3 = -1")
 
 # Transfer data from database to NumPy
-c.execute("SELECT * FROM coursedata")
-sqldata = c.fetchall()
-dtype = [('id','S10'), ('dim1',int), ('dim2',int), ('dim3',int), ('name','S10'), ('rating','S10')]
-data = np.array(sqldata, dtype=dtype)
+c.execute("SELECT cids FROM coursedata")
+cids = [str(row[0]) for row in c.fetchall()]
+c.execute("SELECT dim1 FROM coursedata")
+dim1 = [int(row[0]) for row in c.fetchall()]
+c.execute("SELECT dim2 FROM coursedata")
+dim2 = [int(row[0]) for row in c.fetchall()]
+c.execute("SELECT dim3 FROM coursedata")
+dim3 = [int(row[0]) for row in c.fetchall()]
+
+data = DataFrame({"cids":cids, "dim1":dim1, "dim2":dim2, "dim3":dim3})
+
+
+c.execute("SELECT * FROM COURSEDATA ;")
+for row in c.fetchall():
+    print row
 
 # Figure out which dimension to present to the user
 def which_col(data):
@@ -64,6 +76,7 @@ def step(data):
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
 while len(data) > 6:
+    break
     print "__________________________________________"
     newdata = step(data)
     print "Your top courses are: " + top_courses(newdata)
@@ -78,3 +91,4 @@ conn.close()
 
 # Try numpy, pandas, SQLite, SQLAlchemy and see which is faster
 # or just zipping
+# or sort without courseids and look them up based on characteristics (slow - requires linear scan)

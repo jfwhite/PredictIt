@@ -20,7 +20,7 @@ def insert_course(course):
     if cid in ids:
         return # don't duplicate courses, violating PRIMARY KEY constraint
     dim1 = get_dim1(course) # course level 
-    dim2 = get_dim2(course) # course STEM-ness
+    dim2 = get_dim2(course) # course STEM-ness, currently sketchy
     dim3 = get_dim3(course) # course enrollment
     statement = "INSERT INTO coursedata VALUES ('{id}', {d1}, {d2}, {d3})"
     c.execute(statement.format(id = cid, d1 = dim1, d2 = dim2, d3 = dim3))
@@ -53,7 +53,7 @@ def get_dim3(course):
         return -1 # missing data
 
 # Initialize list of "visited" courseids
-c.execute("SELECT ID FROM COURSEDATA")
+c.execute("SELECT CIDS FROM COURSEDATA")
 ids = [row[0] for row in c.fetchall()]
 
 # Process courses.json and use it to fill courses.db

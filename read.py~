@@ -63,13 +63,13 @@ def step(data):
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
-for i in range(10):
+while len(data) > 6:
     print "__________________________________________"
     newdata = step(data)
     print "Your top courses are: " + top_courses(newdata)
-    print "There are " + len(newdata) + " courses remaining"
-    if len(newdata) < 10:
-        print "Stopping execution because there are too few courses"
+    print "There are " + str(len(newdata)) + " courses remaining."
+    if len(newdata) < 3:
+        print "Stopping execution because there are too few courses."
         break
     data = newdata
 
