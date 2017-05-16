@@ -7,14 +7,14 @@ conn = sqlite3.connect("courses.db")
 c = conn.cursor()
 
 # Prepare table by deleting rows with missing data
-c.execute("DELETE FROM coursedata WHERE dim1 = -1")
-c.execute("DELETE FROM coursedata WHERE dim2 = -1")
-c.execute("DELETE FROM coursedata WHERE dim3 = -1")
+#c.execute("DELETE FROM coursedata WHERE dim1 = -1")
+#c.execute("DELETE FROM coursedata WHERE dim2 = -1")
+#c.execute("DELETE FROM coursedata WHERE dim3 = -1")
 
 # Transfer data from database to NumPy
 c.execute("SELECT * FROM coursedata")
 sqldata = c.fetchall()
-dtype = [('id','S10'), ('dim1',int), ('dim2',int), ('dim3',int), ('name','S10'), ('rating','S10')]
+dtype = [('id','S10'), ('dim1',int), ('dim2',int), ('dim3',int), ('name','S200'), ('rating','S200')]
 data = np.array(sqldata, dtype=dtype)
 
 # Figure out which dimension to present to the user
@@ -41,9 +41,9 @@ def which_col(data):
 
 def print_options(low, med, high):
     print "Here are three example courses:"
-    print "ID: " + low[0] 
-    print "ID: " + med[0]
-    print "ID: " + high[0]
+    print low[4] 
+    print med[4]
+    print high[4]
 
 def parse(selection):
     if selection in ["1", "2", "3"]:
@@ -52,21 +52,26 @@ def parse(selection):
         return parse(raw_input("Please enter 1, 2, or 3.\n"))
 
 def top_courses(newdata):
-    return newdata[0][0]
+    srt = np.sort(newdata, kind='mergesort', order='rating')
+    print srt[-1][4]
+    print srt[-2][4]
+    print srt[-3][4]
 
 # Execute one iteration of our algorithm
 def step(data):
+    d = {"dim1":"Beginner-friendliness", "dim2":"STEMness", "dim3":"Class size"}
     col = which_col(data)
     sor = np.sort(data, kind='mergesort', order=col)
     print_options(sor[0], sor[len(sor)/2], sor[-1])
-    print "Based on the dimension of " + col + "..."
+    print "Based on the dimension of " + d[col] + "..."
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
 while len(data) > 6:
     print "__________________________________________"
     newdata = step(data)
-    print "Your top courses are: " + top_courses(newdata)
+    print "Your top courses are: "
+    top_courses(newdata)
     print "There are " + str(len(newdata)) + " courses remaining."
     if len(newdata) < 3:
         print "Stopping execution because there are too few courses."

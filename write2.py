@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sqlite3
 import json
 from bs4 import BeautifulSoup
@@ -35,14 +37,16 @@ for line in f:
 def insert_course(cid, code, name):
     if cid in ids:
         return # don't duplicate courses, violating PRIMARY KEY constraint
-    dim1 = int(code[3:]) # course level 
+    dim1 = int(code[3:6]) # course level 
     dim2 = get_dim2(code) # course STEM-ness, currently sketchy
     dim3 = get_dim3(cid) # course enrollment
-    name = code + ": " + name
+    name = code
     rating = get_rating(cid, code[0:3])
     statement = "INSERT INTO coursedata VALUES ('{id}', {d1}, {d2}, {d3}, '{name}', '{rating}')"
+    print name
     c.execute(statement.format(id=cid, d1=dim1, d2=dim2, d3=dim3, name=name, rating=rating))
     ids.append(cid) # add to list of "visited" courseids
+    conn.commit()
 
 # Lookup the course rating - do I use Selenium or Base64? interpolation will be hard too
 def get_rating(cid, dept):

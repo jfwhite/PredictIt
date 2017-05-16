@@ -25,9 +25,9 @@ dim3 = [int(row[0]) for row in c.fetchall()]
 data = DataFrame({"cids":cids, "dim1":dim1, "dim2":dim2, "dim3":dim3})
 
 
-c.execute("SELECT * FROM COURSEDATA ;")
-for row in c.fetchall():
-    print row
+#c.execute("SELECT * FROM COURSEDATA ;")
+#for row in c.fetchall():
+#    print row
 
 # Figure out which dimension to present to the user
 def which_col(data):

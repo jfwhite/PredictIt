@@ -79,7 +79,8 @@ while len(data) > 6:
     break
     print "__________________________________________"
     newdata = step(data)
-    print "Your top courses are: " + top_courses(newdata)
+    print "Your top courses are: " 
+    top_courses(newdata)
     print "There are " + str(len(newdata)) + " courses remaining."
     if len(newdata) < 3:
         print "Stopping execution because there are too few courses."
