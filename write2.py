@@ -46,7 +46,7 @@ def insert_course(cid, code, name):
     print name
     c.execute(statement.format(id=cid, d1=dim1, d2=dim2, d3=dim3, name=name, rating=rating))
     ids.append(cid) # add to list of "visited" courseids
-    conn.commit()
+    conn.commit() # saves intermediate progress
 
 # Lookup the course rating - do I use Selenium or Base64? interpolation will be hard too
 def get_rating(cid, dept):

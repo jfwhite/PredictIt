@@ -40,7 +40,7 @@ def insert_course(cid, code, name):
     dim1 = int(code[3:6]) # course level 
     dim2 = get_dim2(code) # course STEM-ness, currently sketchy
     dim3 = get_dim3(cid) # course enrollment
-    name = code + ": " + unicode("".join(name.split("'")), errors="ignore")
+    name = code
     rating = get_rating(cid, code[0:3])
     statement = "INSERT INTO coursedata VALUES ('{id}', {d1}, {d2}, {d3}, '{name}', '{rating}')"
     print name

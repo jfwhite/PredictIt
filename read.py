@@ -29,12 +29,12 @@ def which_col(data):
     d2 = [float(val) for val in data["dim2"]]
     if max(d2) != min(d2):
         r2 = (max(d2) - min(d2))/np.std(d2) 
-        results.append((r2, "dim2"))
+        #results.append((r2, "dim2"))
 
     d3 = [float(val) for val in data["dim3"]]
     if max(d3) != min(d3):
         r3 = (max(d3) - min(d3))/np.std(d3)
-        results.append((r3, "dim3"))
+        #results.append((r3, "dim3"))
 
     # return dimension with greatest standardized range
     return max(results)[1] 
@@ -67,7 +67,7 @@ def step(data):
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
-while len(data) > 6:
+while len(data) > 10:
     print "__________________________________________"
     newdata = step(data)
     print "Your top courses are: "

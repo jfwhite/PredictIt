@@ -7,12 +7,15 @@ c = conn.cursor()
 c.execute("DROP TABLE IF EXISTS COURSEDATA")
 
 # Create new coursedata table
-statement = "CREATE TABLE IF NOT EXISTS COURSEDATA "
-statement = statement + "(cids text PRIMARY KEY, {c1}, {c2}, {c3})"
-col1 = "dim1 int" # The course level
-col2 = "dim2 int" # The STEM-ness
-col3 = "dim3 int" # The enrollment
-c.execute(statement.format(c1 = col1, c2 = col2, c3 = col3))
+statement = "CREATE TABLE IF NOT EXISTS COURSEDATA (cids text PRIMARY KEY, "
+statement = statement + "{c1}, {c2}, {c3}, {c4}, {c5})"
+c1 = "dim1 int" # The course level
+c2 = "dim2 int" # The STEM-ness
+c3 = "dim3 int" # The enrollment
+c4 = "name text"# the name
+c5 = "rating text" # the rating
+
+c.execute(statement.format(c1=c1, c2=c2, c3=c3, c4=c4, c5=c5))
 
 # Close connection to database after saving changes
 conn.commit()

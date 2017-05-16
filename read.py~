@@ -59,14 +59,15 @@ def top_courses(newdata):
 
 # Execute one iteration of our algorithm
 def step(data):
+    d = {"dim1":"Beginner-friendliness", "dim2":"STEMness", "dim3":"Class size"}
     col = which_col(data)
     sor = np.sort(data, kind='mergesort', order=col)
     print_options(sor[0], sor[len(sor)/2], sor[-1])
-    print "Based on the dimension of " + col + "..."
+    print "Based on the dimension of " + d[col] + "..."
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
-while len(data) > 6:
+while len(data) > 10:
     print "__________________________________________"
     newdata = step(data)
     print "Your top courses are: "
