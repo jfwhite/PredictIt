@@ -12,7 +12,6 @@ data = json.load(f)
 # Prepare useful constants
 STEM = ["MAT", "PHY", "MOL", "EEB", "CBE", "ELE", "COS", "CHM", "MAE", "AST", "CEE", "ORF", "SML"] 
 HUM = ["POR", "LAT", "CLA", "HUM", "ENG", "HIS", "PHI", "MUS", "SLA", "COM", "AAS", "SPA", "PER"]
-term = "1182"
 
 # Process JSON to add a course to coursedata table
 def insert_course(course):
