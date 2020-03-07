@@ -2,7 +2,7 @@ import sqlite3
 import requests
 
 # Connect to database
-conn = sqlite3.connect("courses.db")
+conn = sqlite3.connect("predictit.db")
 c = conn.cursor()
 
 # Get data from API
@@ -32,7 +32,7 @@ for market in data.get("markets", []):
         )
 
         print(statement)
-        # c.execute(statement)
+        c.execute(statement)
 
 # Close database connection
 conn.commit()

@@ -7,21 +7,30 @@ import pandas as pd
 conn = sqlite3.connect("predictit.db")
 c = conn.cursor()
 
-# Get statistical summaries of data
-statement = "select "
-statement += "avg(buy_yes) as buy_yes_avg, "
-statement += "avg(buy_no) as buy_no_avg, "
-statement += "avg(sell_yes) as sell_yes_avg, "
-statement += "avg(sell_no) as sell_no_avg, "
-statement += "from contracts group by contract_id"
-data = pd.read_sql(statement, con=conn)
+# Load data for analysis
+data = pd.read_sql("select * from contracts", con=conn)
+
+# Group data by contract id
+contracts = data.groupby(["contract_id"])
 
 # Determine which contract has most volatility
 def top_volatility(data):
-    # Do nothing
+    std_buy_yes = contracts['buy_yes'].std()
+    std_sell_yes = contracts['sell_yes'].std()
+    std_buy_no = contracts['buy_no'].std()
+    std_sell_no = contracts['sell_no'].std()
 
-    print("Most volatile contracts:" 
-    print(data.head())
+    print("Most volatile buy yes:" 
+    print(std_buy_yes.sort_values(by=buy_yes, ascending=False).head())
+
+    print("Most volatile sell yes:" 
+    print(std_sell_yes.sort_values(by=sell_yes, ascending=False).head())
+
+    print("Most volatile buy no:" 
+    print(std_buy_no.sort_values(by=buy_no, ascending=False).head())
+
+    print("Most volatile sell no:" 
+    print(std_sell_no.sort_values(by=sell_no, ascending=False).head())
 
 # Execute all analyses
 top_volatility(data)
