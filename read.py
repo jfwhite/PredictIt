@@ -27,7 +27,7 @@ data = DataFrame({"cids":cids, "dim1":dim1, "dim2":dim2, "dim3":dim3})
 
 #c.execute("SELECT * FROM COURSEDATA ;")
 #for row in c.fetchall():
-#    print row
+#    print(row)
 
 # Figure out which dimension to present to the user
 def which_col(data):
@@ -52,10 +52,10 @@ def which_col(data):
     return max(results)[1] 
 
 def print_options(low, med, high):
-    print "Here are three example courses:"
-    print "ID: " + low[0] 
-    print "ID: " + med[0]
-    print "ID: " + high[0]
+    print("Here are three example courses:")    
+    print("ID: " + low[0]) 
+    print("ID: " + med[0])
+    print("ID: " + high[0])
 
 def parse(selection):
     if selection in ["1", "2", "3"]:
@@ -71,19 +71,19 @@ def step(data):
     col = which_col(data)
     sor = np.sort(data, kind='mergesort', order=col)
     print_options(sor[0], sor[len(sor)/2], sor[-1])
-    print "Based on the dimension of " + col + "..."
+    print("Based on the dimension of " + col + "...")
     selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
     return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
 
 while len(data) > 6:
     break
-    print "__________________________________________"
+    print("__________________________________________")
     newdata = step(data)
-    print "Your top courses are: " 
+    print("Your top courses are: ") 
     top_courses(newdata)
-    print "There are " + str(len(newdata)) + " courses remaining."
+    print("There are " + str(len(newdata)) + " courses remaining.")
     if len(newdata) < 3:
-        print "Stopping execution because there are too few courses."
+        print("Stopping execution because there are too few courses.")
         break
     data = newdata
 
