@@ -24,10 +24,10 @@ for market in data.get("markets", []):
     for contract in market.get("contracts", []):
         statement = template.format(
             market['id'],
-            market['shortName'],
+            market['shortName'].replace("'", ""),
             market['timeStamp'].replace("T", " ").split(".")[0],
             contract["id"],
-            contract["shortName"],
+            contract["shortName"].replace("'", ""),
             contract["dateEnd"].replace("T", " ").split(".")[0],
             round(100*contract["bestBuyYesCost"]) if contract["bestBuyYesCost"] else 'null',
             round(100*contract["bestBuyNoCost"]) if contract["bestBuyNoCost"] else 'null',
