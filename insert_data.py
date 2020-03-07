@@ -1,9 +1,15 @@
 import sqlite3
 import requests
+import sys
 
 # Connect to database
 conn = sqlite3.connect("predictit.db")
 c = conn.cursor()
+
+# Delete existing rows if desired
+if len(sys.argv) > 2:
+    if sys.argv[2] == "overwrite":
+        c.execute("delete from contracts")
 
 # Get data from API
 response = requests.get("https://www.predictit.org/api/marketdata/all")
@@ -23,12 +29,12 @@ for market in data.get("markets", []):
             contract["id"],
             contract["shortName"],
             contract["dateEnd"].replace("T", " ").split(".")[0],
-            contract["bestBuyYesCost"],
-            contract["bestBuyNoCost"],
-            contract["bestSellYesCost"],
-            contract["bestSellNoCost"],
-            contract["lastTradePrice"],
-            contract["lastClosePrice"],
+            round(100*contract["bestBuyYesCost"]) if contract["bestBuyYesCost"] else 'null',
+            round(100*contract["bestBuyNoCost"]) if contract["bestBuyNoCost"] else 'null',
+            round(100*contract["bestSellYesCost"]) if contract["bestSellYesCost"] else 'null',
+            round(100*contract["bestSellNoCost"]) if contract["bestSellNoCost"] else 'null',
+            round(100*contract["lastTradePrice"]) if contract["lastTradePrice"] else 'null',
+            round(100*contract["lastClosePrice"]) if contract["lastClosePrice"] else 'null',
         )
 
         print(statement)
