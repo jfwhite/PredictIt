@@ -11,7 +11,7 @@ data = response.json()
 
 # Template for insertion
 template = "insert into contracts values "
-template += "({}, '{}', {}, {}, '{}', {}, {}, {}, {}, {}, {}, {})"
+template += "({}, '{}', '{}', {}, '{}', '{}', {}, {}, {}, {}, {}, {})"
 
 # Insert data into contracts table
 for market in data.get("markets", []):    
@@ -19,10 +19,10 @@ for market in data.get("markets", []):
         statement = template.format(
             market['id'],
             market['shortName'],
-            market['timeStamp'].replace("T", "").split(".")[0],
+            market['timeStamp'].replace("T", " ").split(".")[0],
             contract["id"],
             contract["shortName"],
-            contract["dateEnd"],
+            contract["dateEnd"].replace("T", " ").split(".")[0],
             contract["bestBuyYesCost"],
             contract["bestBuyNoCost"],
             contract["bestSellYesCost"],
@@ -31,7 +31,8 @@ for market in data.get("markets", []):
             contract["lastClosePrice"],
         )
 
-        c.execute(statement)
+        print(statement)
+        # c.execute(statement)
 
 # Close database connection
 conn.commit()
