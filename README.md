@@ -1,23 +1,21 @@
-# CourseSelection
+# PredictIt
 
-Algorithm for choosing Princeton courses based on binary search
+Library for compiling PredictIt data in order to identify patterns
 
-courses.db is the database file. It stores the coursedata table.
+- contracts.db is the database file. It stores the contracts table.
 
-courses.json stores data about Spring '17 courses in JSON format
+- create_table.py sets up the database 
 
-create.py drops the old coursedata table and creates a new one
+- insert_data.py fills the database with the latest data
 
-write.py fills the coursedata table with data from courses.json
-
-read.py implements our course selection algorithm
+- use_data.py detects interesting patterns in the stored data 
 
 #
 
 Usage:
 
-$ python create.py
+$ python create_database.py
 
-$ python write.py
+$ python insert_data.py
 
-$ python read.py
+$ python use_data.py
