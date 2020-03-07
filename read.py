@@ -1,87 +1,88 @@
 # There is a tradeoff between using numpy and sqlite3 for different things
 import sqlite3
 import numpy as np
-from pandas import DataFrame
+import pandas as pd
 
 # Connect to database
 conn = sqlite3.connect("courses.db")
 c = conn.cursor()
 
 # Prepare table by deleting rows with missing data
-c.execute("DELETE FROM coursedata WHERE dim1 = -1")
-c.execute("DELETE FROM coursedata WHERE dim2 = -1")
-c.execute("DELETE FROM coursedata WHERE dim3 = -1")
+statement = "delete from coursedata where {} or {} or {}"
+statement = statement.format(
+    "course_level = -1",
+    "course_category = -1",
+    "course_enrollment = -1"
+)
+conn.execute(statement)
 
-# Transfer data from database to NumPy
-c.execute("SELECT cids FROM coursedata")
-cids = [str(row[0]) for row in c.fetchall()]
-c.execute("SELECT dim1 FROM coursedata")
-dim1 = [int(row[0]) for row in c.fetchall()]
-c.execute("SELECT dim2 FROM coursedata")
-dim2 = [int(row[0]) for row in c.fetchall()]
-c.execute("SELECT dim3 FROM coursedata")
-dim3 = [int(row[0]) for row in c.fetchall()]
-
-data = DataFrame({"cids":cids, "dim1":dim1, "dim2":dim2, "dim3":dim3})
-
-
-#c.execute("SELECT * FROM COURSEDATA ;")
-#for row in c.fetchall():
-#    print(row)
+data = pd.read_sql("select * from coursedata", con=conn)
 
 # Figure out which dimension to present to the user
 def which_col(data):
     results = []
+    dim1 = data["course_level"]
+    dim2 = data["course_category"]
+    dim3 = data["course_enrollment"]
 
-    d1 = [float(val) for val in data["dim1"]]
-    if max(d1) != min(d1):
-        r1 = (max(d1) - min(d1))/np.std(d1)
-        results.append((r1, "dim1"))
+    if dim1.max() != dim1.min():
+        result_1 = (dim1.max() - dim1.min()) / dim1.std()
+        results.append((result_1, "course_level"))
 
-    d2 = [float(val) for val in data["dim2"]]
-    if max(d2) != min(d2):
-        r2 = (max(d2) - min(d2))/np.std(d2) 
-        results.append((r2, "dim2"))
+    if dim2.max() != dim2.min():
+        result_2 = (dim2.max() - dim2.min()) / dim2.std() 
+        results.append((result_2, "course_category"))
 
-    d3 = [float(val) for val in data["dim3"]]
-    if max(d3) != min(d3):
-        r3 = (max(d3) - min(d3))/np.std(d3)
-        results.append((r3, "dim3"))
+    if dim3.max() != dim3.min():
+        result_3 = (dim3.max() - dim3.min()) / dim3.std()
+        results.append((result_3, "course_enrollment"))
 
     # return dimension with greatest standardized range
-    return max(results)[1] 
+    max_result, max_dimension = max(results)
+    return max_dimension 
 
 def print_options(low, med, high):
     print("Here are three example courses:")    
-    print("ID: " + low[0]) 
-    print("ID: " + med[0])
-    print("ID: " + high[0])
+    print(low[1])
+    print("\tLevel:\t\t{}".format(low[2])) 
+    print("\tCategory:\t{}".format(low[3])) 
+    print("\tEnrollment:\t{}".format(low[4])) 
+    print(med[1])
+    print("\tLevel:\t\t{}".format(med[2])) 
+    print("\tCategory:\t{}".format(med[3])) 
+    print("\tEnrollment:\t{}".format(med[4])) 
+    print(high[1])
+    print("\tLevel:\t\t{}".format(high[2])) 
+    print("\tCategory:\t{}".format(high[3])) 
+    print("\tEnrollment:\t{}".format(high[4])) 
 
 def parse(selection):
     if selection in ["1", "2", "3"]:
         return int(selection)
     else:
-        return parse(raw_input("Please enter 1, 2, or 3.\n"))
-
-def top_courses(newdata):
-    return newdata[0][0]
+        return parse(input("Please enter 1, 2, or 3.\n"))
 
 # Execute one iteration of our algorithm
 def step(data):
     col = which_col(data)
-    sor = np.sort(data, kind='mergesort', order=col)
-    print_options(sor[0], sor[len(sor)/2], sor[-1])
-    print("Based on the dimension of " + col + "...")
-    selection = parse(raw_input("Do you prefer course 1, 2, or 3?\n"))    
-    return sor[(selection-1)*len(sor)/3: selection*len(sor)/3]
+    data.sort_values(by=col, inplace=True)
+    print_options(
+        data.iloc[0], 
+        data.iloc[round(len(data)/2)], 
+        data.iloc[-1]
+    )
+    print("Based on the dimension of " + col.split("_")[1] + ",")
+    selection = parse(input("Do you prefer course 1, 2, or 3?\n"))
+    segment_start = round((selection-1) * len(data)/3)
+    segment_end = round(selection * len(data)/3)
+    return data.iloc[segment_start:segment_end]
 
 while len(data) > 6:
-    break
     print("__________________________________________")
     newdata = step(data)
     print("Your top courses are: ") 
-    top_courses(newdata)
-    print("There are " + str(len(newdata)) + " courses remaining.")
+    print(newdata.head())
+    print("There are {} courses remaining.".format(len(newdata)))
     if len(newdata) < 3:
         print("Stopping execution because there are too few courses.")
         break
@@ -91,5 +92,3 @@ while len(data) > 6:
 conn.close()
 
 # Try numpy, pandas, SQLite, SQLAlchemy and see which is faster
-# or just zipping
-# or sort without courseids and look them up based on characteristics (slow - requires linear scan)

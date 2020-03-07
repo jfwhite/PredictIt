@@ -1,94 +1,71 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import sqlite3
 import json
-from bs4 import BeautifulSoup
-import requests
-import base64
-import numpy as np
-import math
 
 # Connect to database
 conn = sqlite3.connect("courses.db")
 c = conn.cursor()
 
+# Open data file
+f = open("courses.json")
+data = json.load(f)
+
 # Prepare useful constants
 STEM = ["MAT", "PHY", "MOL", "EEB", "CBE", "ELE", "COS", "CHM", "MAE", "AST", "CEE", "ORF", "SML"] 
 HUM = ["POR", "LAT", "CLA", "HUM", "ENG", "HIS", "PHI", "MUS", "SLA", "COM", "AAS", "SPA", "PER"]
-offerings_url = "https://registrar.princeton.edu/course-offerings/"
-eval_url = "https://reg-captiva.princeton.edu/chart/index.php?courseinfo="
 term = "1182"
 
-# Load departmental averages
-f = open("deptavgs.txt")
-deptavgs = {}
-for line in f:
-    (dept, avg) = line.split()
-    if avg != "-1":
-        deptavgs[dept] = float(avg)
-m = np.mean(deptavgs.values())
-f = open("deptavgs.txt")
-for line in f:
-    (dept, avg) = line.split()
-    if float(avg) < 0:
-        deptavgs[dept] = m
-
 # Process JSON to add a course to coursedata table
-def insert_course(cid, code, name):
-    if cid in ids:
-        return # don't duplicate courses, violating PRIMARY KEY constraint
-    dim1 = int(code[3:6]) # course level 
-    dim2 = get_dim2(code) # course STEM-ness, currently sketchy
-    dim3 = get_dim3(cid) # course enrollment
-    name = code
-    rating = get_rating(cid, code[0:3])
-    statement = "INSERT INTO coursedata VALUES ('{id}', {d1}, {d2}, {d3}, '{name}', '{rating}')"
-    print(name)
-    c.execute(statement.format(id=cid, d1=dim1, d2=dim2, d3=dim3, name=name, rating=rating))
-    ids.append(cid) # add to list of "visited" courseids
-    conn.commit() # saves intermediate progress
+def insert_course(course):
+    if course["courseid"] in ids:
+        return # don't duplicate courses, violating primary key constraint
+    statement = "insert into coursedata values ('{}', '{}', {}, {}, {})"
+    statement = statement.format(
+        course["courseid"],
+        get_course_title(course), 
+        get_course_level(course), 
+        get_course_category(course), # course STEM-ness, currently sketchy
+        get_course_enrollment(course) 
+    )
+    c.execute(statement)
+    ids.append(course["courseid"]) # add to list of "visited" courseids
 
-# Lookup the course rating - do I use Selenium or Base64? interpolation will be hard too
-def get_rating(cid, dept):
-    r = requests.get(eval_url+cid)
-    b = BeautifulSoup(r.text, "lxml")
-    input = b.find_all("input")
-    ratings = [deptavgs[dept]]
-    if input:
-        koolchart = json.loads(base64.b64decode(input[1].attrs["value"]))
-        ratings = [float(item["YValue"]) for item in koolchart["PlotArea"]["ListOfSeries"][0]["Items"]]
-    return round(np.mean(ratings), 3)
+# Extract the course title (currently hacky)
+def get_course_title(course):
+    return ["title"].replace("'", ""),
+
+# Extract the course level
+def get_course_level(course):
+    if course.get("listings"):
+        return int(course.get("listings")[0]["number"])
+    else:
+        return -1 # missing data
 
 # Extract the course STEM-ness
-def get_dim2(course):
-    if course[0:3] in STEM:
-       return 30 # very STEM
-    elif course[0:3] in HUM:
-       return 10 # very non-STEM
+def get_course_category(course):
+    if course.get("listings"):
+        if course.get("listings")[0]["dept"] in STEM:
+            return 30 # very STEM
+        elif course.get("listings")[0]["dept"] in HUM:
+            return 10 # very non-STEM
+        else:
+            return 20 # in between: social sciences and other
     else:
-       return 20 # in between: social sciences and other
+        return -1 # missing data
 
-def get_dim3(course):
-    r = requests.get(offerings_url+"course_details.xml?term="+term+"&courseid="+course)
-    s = BeautifulSoup(r.text, "lxml")
-    e = s.find(text="Enrolled:").parent.next_sibling.strip() # broken for multiple section-classes
-    return int(e)
+# Extract the enrollment
+def get_course_enrollment(course):
+    if course.get("classes"):
+        return int(course["classes"][0]["enroll"])
+    else:
+        return -1 # missing data
 
 # Initialize list of "visited" courseids
-c.execute("SELECT CIDS FROM COURSEDATA")
+c.execute("select course_id from coursedata")
 ids = [row[0] for row in c.fetchall()]
 
-# Get all courseids
-r = requests.get(offerings_url+"search_results.xml?term="+term)
-s = BeautifulSoup(r.text, "lxml")
-for a in s.find_all("a"):
-    h = a.get("href", "not found")
-    if "course_details.xml" in h:
-        coursecode = " ".join(a.text.split()[0:2])
-        name = a.parent.next_sibling.next_sibling.text.strip()
-        insert_course(h[28:34], coursecode, name)
-
-# Or iterate through all possible - maybe try both?
+# Process courses.json and use it to fill courses.db
+for course in data:
+    insert_course(course)
 
 # Close database connection
 conn.commit()
