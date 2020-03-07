@@ -1,16 +1,31 @@
-# Create connection to database
 import sqlite3
+import sys
+
+# Create connection to database
 conn = sqlite3.connect("predictit.db")
 c = conn.cursor()
 
-# Create new coursedata table
-statement = "create table if not exists coursedata ({}, {}, {}, {}, {})"
+# Drop contracts table if desired
+if len(sys.argv) > 2:
+	if sys.argv[2] == "overwrite":
+		c.execute("drop table if exists contracts")
+
+# Create new contracts table
+statement = "create table if not exists contracts "
+statement += "({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})"
 statement = statement.format(
-	"course_id text primary key",
-	"course_title text", 
-	"course_level int", 
-	"course_category int", # How STEMmy the course is
-	"course_enrollment int", 
+	"market_id int",
+	"market_name text",
+	"timestamp text",
+	"contract_id int",
+	"contract_name text",
+	"contract_end text",
+	"buy_yes int", 
+	"buy_no int", 
+	"sell_yes int",
+	"sell_no int",
+	"last_trade int",
+	"last_close int"
 )
 c.execute(statement)
 
