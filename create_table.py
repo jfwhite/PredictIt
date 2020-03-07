@@ -1,10 +1,7 @@
 # Create connection to database
 import sqlite3
-conn = sqlite3.connect("courses.db")
+conn = sqlite3.connect("predictit.db")
 c = conn.cursor()
-
-# Drop old coursedata table
-c.execute("drop table if exists coursedata")
 
 # Create new coursedata table
 statement = "create table if not exists coursedata ({}, {}, {}, {}, {})"
