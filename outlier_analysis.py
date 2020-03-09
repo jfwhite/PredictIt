@@ -12,7 +12,7 @@ data = pd.read_sql("select * from contracts", con=conn)
 print(data.head())
 
 # Group data by contract id
-contracts = data.groupby(["contract_id"])
+contracts = data.groupby(["market_name", "contract_name"])
 
 # Determine which contract has most volatility
 def top_volatility(data):
