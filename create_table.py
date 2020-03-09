@@ -14,18 +14,18 @@ if len(sys.argv) > 2:
 statement = "create table if not exists contracts "
 statement += "({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})"
 statement = statement.format(
-	"market_id int",
+	"market_id integer",
 	"market_name text",
 	"timestamp text",
-	"contract_id int",
+	"contract_id integer",
 	"contract_name text",
 	"contract_end text",
-	"buy_yes int", 
-	"buy_no int", 
-	"sell_yes int",
-	"sell_no int",
-	"last_trade int",
-	"last_close int"
+	"buy_yes integer", 
+	"buy_no integer", 
+	"sell_yes integer",
+	"sell_no integer",
+	"last_trade integer",
+	"last_close integer"
 )
 c.execute(statement)
 

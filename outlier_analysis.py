@@ -9,6 +9,7 @@ c = conn.cursor()
 
 # Load data for analysis
 data = pd.read_sql("select * from contracts", con=conn)
+print(data.head())
 
 # Group data by contract id
 contracts = data.groupby(["contract_id"])
